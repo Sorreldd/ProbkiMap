@@ -2,17 +2,22 @@ package ru.ifmosw;
 
 
 import javax.swing.*;
+import javax.swing.plaf.basic.BasicBorders.RadioButtonBorder;
+
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.Random;
 
 public class MainFrame extends JFrame{
 	private Container root;
+	static Random rr;
 	private static GuiMap mapgui;
 	static private boolean isStClk, isFnClk;
 	static public Color pix[][];
+	static public int avto[][];
 	static public Point pred[][];
 	static public int dist[];
 	
@@ -28,6 +33,7 @@ public class MainFrame extends JFrame{
 		return (cRed + cBlue + cGreen >= 600 && cRed + cBlue + cGreen <= 680);	
 	}
 	public static void bfs() {
+		
 		for(int i = 0; i < 1000000; i++)
 			dist[i] = Integer.MAX_VALUE / 2;
 		Queue <Point> q = new LinkedList<Point>();
@@ -39,20 +45,28 @@ public class MainFrame extends JFrame{
 			for(int i = 0; i < 4; i++) {
 				int toX = st.x + X[i];
 				int toY = st.y + Y[i];
-				if(try_move(toX, toY) && dist[toY * 1321 + toX] > dist[st.y * 1321 + st.x] + 1) {
-					q.add(new Point(st.x + X[i], st.y + Y[i]));
-					dist[toY * 1321 + toX] = dist[st.y * 1321 + st.x] + 1;
+				if(try_move(toX, toY) && dist[toY * 1321 + toX] > dist[st.y * 1321 + st.x] + 1 + mapgui.colors[st.x][st.y]) {
+					q.add(new Point(toX, toY));
+					dist[toY * 1321 + toX] = dist[st.y * 1321 + st.x] + 1 + mapgui.colors[st.x][st.y];
 					pred[toX][toY] = st;
 				}
 			}
 		}
+		System.out.println(dist[mapgui.stPoint.y * 1321 + mapgui.stPoint.x]);
+	}
+	public static void updateTraffic() {
+		for(int i = 0; i < 1321; i++)
+			for(int j = 0; j < 553; j++)
+				if(try_move(i, j))
+					avto[i][j] = rr.nextInt() % 2;
 	}
 	
 	public MainFrame() throws Exception {
-		
 		super("MAPv1");
 		root = getContentPane();
         mapgui = new GuiMap();
+        rr = new Random();
+        updateTraffic();
         mapgui.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseReleased(MouseEvent e) {
@@ -113,6 +127,8 @@ public class MainFrame extends JFrame{
 		dist = new int[1000000];
 		pix = new Color[1321][553];
 		pred = new Point[1321][553];
+		avto = new int[1321][553];
+		
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
