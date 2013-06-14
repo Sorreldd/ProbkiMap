@@ -20,6 +20,7 @@ public class MainFrame extends JFrame{
 	static public int avto[][];
 	static public Point pred[][];
 	static public int dist[];
+	static public boolean used[];
 	
 	static final int X[] = {-1, 0, 0, 1};
 	static final int Y[] = {0, -1, 1, 0};
@@ -32,21 +33,26 @@ public class MainFrame extends JFrame{
 		cBlue = pix[x][y].getBlue();
 		return (cRed + cBlue + cGreen >= 600 && cRed + cBlue + cGreen <= 680);	
 	}
+	
 	public static void bfs() {
-		
-		for(int i = 0; i < 1000000; i++)
+		for(int i = 0; i < 1000000; i++) {
 			dist[i] = Integer.MAX_VALUE / 2;
+			used[i] = false;
+		}
 		Queue <Point> q = new LinkedList<Point>();
 		q.add(mapgui.spPoint);
 		dist[mapgui.spPoint.y * 1321 + mapgui.spPoint.x] = 0;
+		used[mapgui.spPoint.y * 1321 + mapgui.spPoint.x] = true;
 		while(!q.isEmpty()) {
 			Point st = q.peek();
 			q.poll();
+			used[st.y * 1321 + st.x] = false;
 			for(int i = 0; i < 4; i++) {
 				int toX = st.x + X[i];
 				int toY = st.y + Y[i];
 				if(try_move(toX, toY) && dist[toY * 1321 + toX] > dist[st.y * 1321 + st.x] + 1 + mapgui.colors[st.x][st.y]) {
-					q.add(new Point(toX, toY));
+					if(!used[toY * 1321 + toX]) q.add(new Point(toX, toY));
+					used[toY * 1321 + toX] = true;
 					dist[toY * 1321 + toX] = dist[st.y * 1321 + st.x] + 1 + mapgui.colors[st.x][st.y];
 					pred[toX][toY] = st;
 				}
@@ -125,6 +131,7 @@ public class MainFrame extends JFrame{
 		isStClk = false;
 		isFnClk = false;
 		dist = new int[1000000];
+		used = new boolean[1000000];
 		pix = new Color[1321][553];
 		pred = new Point[1321][553];
 		avto = new int[1321][553];
